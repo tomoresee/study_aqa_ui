@@ -1,5 +1,7 @@
 from pages.context_menu_page import ContextMenuPage
+from pages.horizontal_slider_page import HorizontalSliderPage
 from pages.javascript_alerts import JavascriptAlerts
+from ui.page_actions import PageActions
 from utils.data import random_text
 from utils.url_utils import embed_credentials_in_url
 from playwright.sync_api import Page
@@ -14,7 +16,7 @@ password = "admin"
 URL = ConfigReader.get("base_url")
 
 
-def test_basic_auth(basic_auth_page: BasicAuthPage, actions):
+def test_basic_auth(basic_auth_page: BasicAuthPage, actions: PageActions):
     """
     1. Перейти по URL
     2. Выполнить авторизацию с корректными учетными данными
@@ -30,7 +32,7 @@ def test_basic_auth(basic_auth_page: BasicAuthPage, actions):
     assert basic_auth_page.assert_text_message()
 
 
-def test_alerts(js_alert_page: JavascriptAlerts, actions):
+def test_alerts(js_alert_page: JavascriptAlerts, actions: PageActions):
     actions.goto(f"{URL}/javascript_alerts")
 
     alert_text = js_alert_page.accept_js_alert()
@@ -78,7 +80,7 @@ def test_alerts(js_alert_page: JavascriptAlerts, actions):
     )
 
 
-def test_context_click(context_menu_page: ContextMenuPage, actions):
+def test_context_click(context_menu_page: ContextMenuPage, actions: PageActions):
     """
     1. Перейти по URL
     2. Выполнить клик правой кнопкой мыши (ПКМ) по выделенной области
@@ -95,4 +97,23 @@ def test_context_click(context_menu_page: ContextMenuPage, actions):
         f"Неожиданный текст alert. "
         f"Ожидалось: 'You selected a context menu', "
         f"Фактически: '{alert_text}'"
+    )
+
+
+def test_slider(horizontal_slider_page: HorizontalSliderPage,
+                actions: PageActions, ):
+    actions.goto(
+        f"{URL}/horizontal_slider"
+    )
+
+    expected_value = horizontal_slider_page.set_random_slider_value()
+
+    actual_value = (
+        horizontal_slider_page.slider_value.get_inner_text()
+    )
+
+    assert float(actual_value) == float(expected_value), (
+        f"Значение слайдера неверное. "
+        f"Ожидалось: '{expected_value}', "
+        f"Фактически: '{actual_value}'"
     )
