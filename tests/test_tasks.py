@@ -3,12 +3,13 @@ from utils.url_utils import embed_credentials_in_url
 from playwright.sync_api import Page
 from pages.basic_auth_page import BasicAuthPage
 from faker import Faker
-
-url = "http://the-internet.herokuapp.com/basic_auth"
+from utils.config_reader import ConfigReader
 
 # Это бы я сохранил в .env
 login = "admin"
 password = "admin"
+
+URL = ConfigReader.get("base_url")
 
 
 def test_basic_auth(basic_auth_page: BasicAuthPage, actions):
@@ -22,14 +23,13 @@ def test_basic_auth(basic_auth_page: BasicAuthPage, actions):
     Текст соответствует: Congratulations! You must have the proper credentials.
     """
 
-    actions.goto(embed_credentials_in_url(url, login, password))
+    actions.goto(embed_credentials_in_url(f"{URL}/basic_auth", login, password))
 
     assert basic_auth_page.assert_text_message()
 
 
 def test_alerts(js_alert_page: JavascriptAlerts, actions):
-    # TODO вынести в config URL
-    actions.goto("https://the-internet.herokuapp.com/javascript_alerts")
+    actions.goto(f"{URL}/javascript_alerts")
 
     # TODO вынести faker куда нибудь
     fake = Faker()
