@@ -2,6 +2,7 @@ from pages.javascript_alerts import JavascriptAlerts
 from utils.url_utils import embed_credentials_in_url
 from playwright.sync_api import Page
 from pages.basic_auth_page import BasicAuthPage
+from faker import Faker
 
 url = "http://the-internet.herokuapp.com/basic_auth"
 
@@ -27,11 +28,54 @@ def test_basic_auth(basic_auth_page: BasicAuthPage, actions):
 
 
 def test_alerts(js_alert_page: JavascriptAlerts, actions):
+    # TODO вынести в config URL
     actions.goto("https://the-internet.herokuapp.com/javascript_alerts")
 
-    alert_text = js_alert_page.click_js_alert_and_accept()
+    # TODO вынести faker куда нибудь
+    fake = Faker()
 
-    assert alert_text == "I am a JS Alert"
-    assert js_alert_page.result.get_inner_text() == (
-        "You successfully clicked an alert"
+    alert_text = js_alert_page.accept_js_alert()
+
+    assert alert_text == "I am a JS Alert", (
+        f"Неожиданный текст alert. "
+        f"Ожидалось: 'I am a JS Alert', Фактически: '{alert_text}'"
+    )
+
+    result = js_alert_page.get_result_text()
+
+    assert result == "You successfully clicked an alert", (
+        f"Неожидательный текст результата. "
+        f"Ожидалось: 'You successfully clicked an alert', "
+        f"Фактически: '{result}'"
+    )
+
+    dialog_text = js_alert_page.accept_js_confirm()
+
+    assert dialog_text == "I am a JS Confirm", (
+        f"Неожиданный текст confirm. "
+        f"Ожидалось: 'I am a JS Confirm', Фактически: '{dialog_text}'"
+    )
+
+    result = js_alert_page.get_result_text()
+
+    assert result == "You clicked: Ok", (
+        f"Неожиданный текст результата. "
+        f"Ожидалось: 'You clicked: Ok', Фактически: '{result}'"
+    )
+
+    random_text = fake.pystr()
+
+    prompt_text = js_alert_page.enter_prompt_text(random_text)
+
+    assert prompt_text == "I am a JS prompt", (
+        f"Неожиданный текст prompt. "
+        f"Ожидалось: 'I am a JS Prompt', Фактически: '{prompt_text}'"
+    )
+
+    result = js_alert_page.get_result_text()
+
+    assert result == f"You entered: {random_text}", (
+        f"Неожиданный текст результата. "
+        f"Ожидалось: 'You entered: {random_text}', "
+        f"Фактически: '{result}'"
     )
