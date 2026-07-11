@@ -1,6 +1,7 @@
 import pytest
 
 from logger import setup_logger
+from pages.context_menu_page import ContextMenuPage
 from pages.javascript_alerts import JavascriptAlerts
 from ui.page_actions import PageActions
 from playwright.sync_api import Page
@@ -25,3 +26,8 @@ def basic_auth_page(page: Page) -> BasicAuthPage:
 @pytest.fixture(scope="function")
 def js_alert_page(page: Page) -> JavascriptAlerts:
     return JavascriptAlerts(page)
+
+
+@pytest.fixture(scope="function")
+def context_menu_page(page: Page) -> ContextMenuPage:
+    return ContextMenuPage(page)

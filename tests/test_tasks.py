@@ -1,8 +1,10 @@
+from pages.context_menu_page import ContextMenuPage
 from pages.javascript_alerts import JavascriptAlerts
+from utils.data import random_text
 from utils.url_utils import embed_credentials_in_url
 from playwright.sync_api import Page
 from pages.basic_auth_page import BasicAuthPage
-from faker import Faker
+
 from utils.config_reader import ConfigReader
 
 # Это бы я сохранил в .env
@@ -30,9 +32,6 @@ def test_basic_auth(basic_auth_page: BasicAuthPage, actions):
 
 def test_alerts(js_alert_page: JavascriptAlerts, actions):
     actions.goto(f"{URL}/javascript_alerts")
-
-    # TODO вынести faker куда нибудь
-    fake = Faker()
 
     alert_text = js_alert_page.accept_js_alert()
 
@@ -63,8 +62,6 @@ def test_alerts(js_alert_page: JavascriptAlerts, actions):
         f"Ожидалось: 'You clicked: Ok', Фактически: '{result}'"
     )
 
-    random_text = fake.pystr()
-
     prompt_text = js_alert_page.enter_prompt_text(random_text)
 
     assert prompt_text == "I am a JS prompt", (
@@ -78,4 +75,24 @@ def test_alerts(js_alert_page: JavascriptAlerts, actions):
         f"Неожиданный текст результата. "
         f"Ожидалось: 'You entered: {random_text}', "
         f"Фактически: '{result}'"
+    )
+
+
+def test_context_click(context_menu_page: ContextMenuPage, actions):
+    """
+    1. Перейти по URL
+    2. Выполнить клик правой кнопкой мыши (ПКМ) по выделенной области
+    Отображается alert с текстом You selected a context menu
+
+    3. В alert нажать кнопку OK
+
+    """
+    actions.goto(f"{URL}/context_menu")
+
+    alert_text = context_menu_page.get_hot_spot_alert_text()
+
+    assert alert_text == "You selected a context menu", (
+        f"Неожиданный текст alert. "
+        f"Ожидалось: 'You selected a context menu', "
+        f"Фактически: '{alert_text}'"
     )
