@@ -2,6 +2,7 @@ from pages.context_menu_page import ContextMenuPage
 from pages.horizontal_slider_page import HorizontalSliderPage
 from pages.hovers_page import HoverPage
 from pages.javascript_alerts import JavascriptAlerts
+from pages.windows_page import WindowsPage, NewWindowPage
 from ui.page_actions import PageActions
 from utils.data import random_text
 from utils.url_utils import embed_credentials_in_url
@@ -141,3 +142,56 @@ def test_hovers(hover_page: HoverPage, actions: PageActions):
             f"Неверный текст для пользователя {i + 1}. "
             f"Ожидалось: '{expected}', Фактически: '{text}'"
         )
+
+
+def test_windows(windows_page: WindowsPage, actions: PageActions):
+    """
+    1. Перейти по URL
+    2. Нажать на ссылку Click Here
+    3. Переключиться на новую вкладку /windows/new
+    4. Получить текст, отображаемый на странице
+        Отображается текст: New Window
+
+    5. Вернуться на вкладку из шага 1
+    6. Нажать на ссылку Click Here
+    7. Переключиться на новую вкладку
+    8. Получить текст, отображаемый на странице
+        Отображается текст: New Window
+
+    9. Вернуться на вкладку из шага 1
+    10. Закрыть вкладку, открытую на шаге 3
+    11. Закрыть вкладку, открытую на шаге 7
+    12. Проверить количество открытых вкладок
+        Открыта 1 вкладка
+    """
+
+    actions.goto(f"{URL}/windows")
+
+    new_tab_1 = windows_page.open_new_tab()
+    assert "/windows/new" in new_tab_1.url
+
+    new_window_page_1 = NewWindowPage(new_tab_1)
+    text_1 = new_window_page_1.get_text()
+
+    assert text_1 == "New Window"
+
+    windows_page.page.bring_to_front()
+
+    new_tab_2 = windows_page.open_new_tab()
+    assert "/windows/new" in new_tab_2.url
+
+    new_window_page_2 = NewWindowPage(new_tab_2)
+    text_2 = new_window_page_2.get_text()
+
+    assert text_2 == "New Window"
+
+    windows_page.page.bring_to_front()
+
+    new_tab_1.close()
+    new_tab_2.close()
+
+    pages = windows_page.page.context.pages
+
+    assert len(pages) == 1, (
+        f"Ожидалась 1 вкладка, фактически: {len(pages)}"
+    )

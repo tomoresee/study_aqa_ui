@@ -5,6 +5,7 @@ from pages.context_menu_page import ContextMenuPage
 from pages.horizontal_slider_page import HorizontalSliderPage
 from pages.hovers_page import HoverPage
 from pages.javascript_alerts import JavascriptAlerts
+from pages.windows_page import WindowsPage
 from ui.page_actions import PageActions
 from playwright.sync_api import Page
 from pages.basic_auth_page import BasicAuthPage
@@ -43,3 +44,8 @@ def horizontal_slider_page(page: Page) -> HorizontalSliderPage:
 @pytest.fixture(scope="function")
 def hover_page(page: Page) -> HoverPage:
     return HoverPage(page)
+
+
+@pytest.fixture(scope="function")
+def windows_page(page: Page) -> WindowsPage:
+    return WindowsPage(page)
