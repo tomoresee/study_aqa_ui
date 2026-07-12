@@ -1,5 +1,6 @@
 from pages.context_menu_page import ContextMenuPage
 from pages.horizontal_slider_page import HorizontalSliderPage
+from pages.hovers_page import HoverPage
 from pages.javascript_alerts import JavascriptAlerts
 from ui.page_actions import PageActions
 from utils.data import random_text
@@ -117,3 +118,26 @@ def test_slider(horizontal_slider_page: HorizontalSliderPage,
         f"Ожидалось: '{expected_value}', "
         f"Фактически: '{actual_value}'"
     )
+
+
+def test_hovers(hover_page: HoverPage, actions: PageActions):
+    """
+    1. Перейти по URL
+    2. Навести курсор на изображение пользователя
+    3. Получить текст, отображаемый при наведении
+    Отображается имя пользователя в формате: name: userN, где N — порядковый номер
+
+    4. Повторить шаги 2–3 для каждого пользователя (список пользователей определяется динамически)
+    Для каждого пользователя выполняются те же проверки
+    """
+    actions.goto(f'{URL}/hovers')
+
+    texts = hover_page.get_all_users_texts()
+
+    for i, text in enumerate(texts):
+        expected = f"name: user{i + 1}"
+
+        assert text == expected, (
+            f"Неверный текст для пользователя {i + 1}. "
+            f"Ожидалось: '{expected}', Фактически: '{text}'"
+        )
