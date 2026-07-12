@@ -2,6 +2,7 @@ import pytest
 
 from logger import setup_logger
 from pages.context_menu_page import ContextMenuPage
+from pages.frames_page import FramePage
 from pages.horizontal_slider_page import HorizontalSliderPage
 from pages.hovers_page import HoverPage
 from pages.javascript_alerts import JavascriptAlerts
@@ -49,3 +50,8 @@ def hover_page(page: Page) -> HoverPage:
 @pytest.fixture(scope="function")
 def windows_page(page: Page) -> WindowsPage:
     return WindowsPage(page)
+
+
+@pytest.fixture(scope="function")
+def frame_page(page: Page) -> FramePage:
+    return FramePage(page)

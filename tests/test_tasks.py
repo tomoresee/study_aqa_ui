@@ -1,4 +1,5 @@
 from pages.context_menu_page import ContextMenuPage
+from pages.frames_page import FramePage
 from pages.horizontal_slider_page import HorizontalSliderPage
 from pages.hovers_page import HoverPage
 from pages.javascript_alerts import JavascriptAlerts
@@ -195,3 +196,28 @@ def test_windows(windows_page: WindowsPage, actions: PageActions):
     assert len(pages) == 1, (
         f"Ожидалась 1 вкладка, фактически: {len(pages)}"
     )
+
+
+def test_frames(frame_page: FramePage, actions: PageActions):
+    """
+    1. Перейти по URL
+    2. Получить текст из левого frame
+        Текст равен: LEFT
+
+    3. Получить текст из правого frame
+        Текст равен: RIGHT
+
+    4. Получить текст из нижнего frame
+        Текст равен: BOTTOM
+
+    5. Получить текст из центрального frame
+        Текст равен: MIDDLE
+    """
+    actions.goto(f"{URL}/nested_frames")
+
+    assert frame_page.get_left_text() == "LEFT"
+    assert frame_page.get_right_text() == "RIGHT"
+    assert frame_page.get_bottom_text() == "BOTTOM"
+    assert frame_page.get_middle_text() == "MIDDLE"
+
+# TODO добавить везде фактический и ожидаемый результат в assert
