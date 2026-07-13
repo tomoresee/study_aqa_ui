@@ -8,6 +8,7 @@ from pages.horizontal_slider_page import HorizontalSliderPage
 from pages.hovers_page import HoverPage
 from pages.infinite_scroll_page import InfiniteScrollPage
 from pages.javascript_alerts import JavascriptAlerts
+from pages.upload_image_page import UploadImagePage
 from pages.windows_page import WindowsPage
 from ui.page_actions import PageActions
 from playwright.sync_api import Page
@@ -67,3 +68,8 @@ def dynamic_page(page: Page) -> DynamicContentPage:
 @pytest.fixture(scope="function")
 def infinite_scroll_page(page: Page) -> InfiniteScrollPage:
     return InfiniteScrollPage(page)
+
+
+@pytest.fixture(scope="function")
+def upload_image_page(page: Page) -> UploadImagePage:
+    return UploadImagePage(page)

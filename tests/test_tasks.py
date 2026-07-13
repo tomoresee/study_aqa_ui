@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pages.context_menu_page import ContextMenuPage
 from pages.dynamic_content_page import DynamicContentPage
 from pages.frames_page import FramePage
@@ -5,6 +7,7 @@ from pages.horizontal_slider_page import HorizontalSliderPage
 from pages.hovers_page import HoverPage
 from pages.infinite_scroll_page import InfiniteScrollPage
 from pages.javascript_alerts import JavascriptAlerts
+from pages.upload_image_page import UploadImagePage
 from pages.windows_page import WindowsPage, NewWindowPage
 from ui.page_actions import PageActions
 from utils.data import random_text
@@ -299,4 +302,34 @@ def test_scroll(infinite_scroll_page: InfiniteScrollPage, actions: PageActions):
     assert count >= 10, (
         f"Количество абзацев меньше ожидаемого. "
         f"Ожидалось: не менее 10, Фактически: {count}"
+    )
+
+
+def test_upload_image(upload_image_page: UploadImagePage, actions: PageActions):
+    """
+    1. Перейти по URL
+    2. Загрузить файл на страницу
+        Страница обновлена. На странице отображается текст: File Uploaded!
+        Отображается имя загруженного файла
+    """
+    actions.goto(f"{URL}/upload")
+
+    file_name = "test_image.png"
+    file_path = Path("tests/files/test_image.png")
+
+    upload_image_page.upload_file(file_path)
+
+    message = upload_image_page.get_success_message()
+    uploaded_file = upload_image_page.get_uploaded_file_name()
+
+    assert message == "File Uploaded!", (
+        f"Неверное сообщение после загрузки файла. "
+        f"Ожидалось: 'File Uploaded!', "
+        f"Фактически: '{message}'"
+    )
+
+    assert uploaded_file == file_name, (
+        f"Неверное имя загруженного файла. "
+        f"Ожидалось: '{file_name}', "
+        f"Фактически: '{uploaded_file}'"
     )

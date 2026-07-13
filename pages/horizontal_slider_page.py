@@ -4,7 +4,7 @@ from playwright.sync_api import Page
 import random
 
 
-class HorizontalSliderPage():
+class HorizontalSliderPage:
     def __init__(self, page: Page):
         self.page = page
         self.actions = PageActions(page)

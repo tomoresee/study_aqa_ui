@@ -3,7 +3,7 @@ from ui.web_element import WebElement
 from playwright.sync_api import Page
 
 
-class ContextMenuPage():
+class ContextMenuPage:
     def __init__(self, page: Page):
         self.page = page
         self.actions = PageActions(page)
