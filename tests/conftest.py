@@ -2,6 +2,7 @@ import pytest
 
 from logger import setup_logger
 from pages.context_menu_page import ContextMenuPage
+from pages.dynamic_content_page import DynamicContentPage
 from pages.frames_page import FramePage
 from pages.horizontal_slider_page import HorizontalSliderPage
 from pages.hovers_page import HoverPage
@@ -55,3 +56,8 @@ def windows_page(page: Page) -> WindowsPage:
 @pytest.fixture(scope="function")
 def frame_page(page: Page) -> FramePage:
     return FramePage(page)
+
+
+@pytest.fixture(scope="function")
+def dynamic_page(page: Page) -> DynamicContentPage:
+    return DynamicContentPage(page)

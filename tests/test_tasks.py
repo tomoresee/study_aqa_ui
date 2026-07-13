@@ -1,4 +1,5 @@
 from pages.context_menu_page import ContextMenuPage
+from pages.dynamic_content_page import DynamicContentPage
 from pages.frames_page import FramePage
 from pages.horizontal_slider_page import HorizontalSliderPage
 from pages.hovers_page import HoverPage
@@ -220,4 +221,20 @@ def test_frames(frame_page: FramePage, actions: PageActions):
     assert frame_page.get_bottom_text() == "BOTTOM"
     assert frame_page.get_middle_text() == "MIDDLE"
 
+
 # TODO добавить везде фактический и ожидаемый результат в assert
+
+def test_dynamic_content(dynamic_page: DynamicContentPage, actions: PageActions):
+    """
+    1. Перейти по URL
+    2. Обновлять страницу до тех пор, пока любые два изображения из трёх не совпадут
+        Найдены два одинаковых изображения среди трёх
+    """
+
+    actions.goto(f"{URL}/dynamic_content")
+
+    srcs = dynamic_page.wait_for_images_state()
+
+    assert len(set(srcs)) < len(srcs), (
+        "Не удалось найти два одинаковых изображения"
+    )
