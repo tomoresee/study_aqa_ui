@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from pages.context_menu_page import ContextMenuPage
+from pages.download_page import DownloadPage
 from pages.dynamic_content_page import DynamicContentPage
 from pages.frames_page import FramePage
 from pages.horizontal_slider_page import HorizontalSliderPage
@@ -332,4 +333,27 @@ def test_upload_image(upload_image_page: UploadImagePage, actions: PageActions):
         f"Неверное имя загруженного файла. "
         f"Ожидалось: '{file_name}', "
         f"Фактически: '{uploaded_file}'"
+    )
+
+
+def test_download(download_page: DownloadPage, actions: PageActions):
+    """
+    1. Перейти по URL страницы со списком файлов
+    2. Получить имя третьего файла сверху
+    3. Инициировать скачивание третьего файла сверху
+    4. Проверить имя скачанного файла
+        Имя скачанного файла равно имени, полученному на шаге 2
+    """
+    actions.goto(f"{URL}/download")
+
+    expected_file_name = download_page.get_third_file_name()
+
+    download = download_page.download_third_file()
+
+    actual_file_name = Path(download.suggested_filename).name
+
+    assert actual_file_name == expected_file_name, (
+        f"Неверное имя скачанного файла. "
+        f"Ожидалось: '{expected_file_name}', "
+        f"Фактически: '{actual_file_name}'"
     )

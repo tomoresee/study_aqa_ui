@@ -2,6 +2,7 @@ import pytest
 
 from logger import setup_logger
 from pages.context_menu_page import ContextMenuPage
+from pages.download_page import DownloadPage
 from pages.dynamic_content_page import DynamicContentPage
 from pages.frames_page import FramePage
 from pages.horizontal_slider_page import HorizontalSliderPage
@@ -73,3 +74,8 @@ def infinite_scroll_page(page: Page) -> InfiniteScrollPage:
 @pytest.fixture(scope="function")
 def upload_image_page(page: Page) -> UploadImagePage:
     return UploadImagePage(page)
+
+
+@pytest.fixture(scope="function")
+def download_page(page: Page) -> DownloadPage:
+    return DownloadPage(page)
