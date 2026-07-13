@@ -3,12 +3,12 @@ from pages.dynamic_content_page import DynamicContentPage
 from pages.frames_page import FramePage
 from pages.horizontal_slider_page import HorizontalSliderPage
 from pages.hovers_page import HoverPage
+from pages.infinite_scroll_page import InfiniteScrollPage
 from pages.javascript_alerts import JavascriptAlerts
 from pages.windows_page import WindowsPage, NewWindowPage
 from ui.page_actions import PageActions
 from utils.data import random_text
 from utils.url_utils import embed_credentials_in_url
-from playwright.sync_api import Page
 from pages.basic_auth_page import BasicAuthPage
 
 from utils.config_reader import ConfigReader
@@ -33,7 +33,15 @@ def test_basic_auth(basic_auth_page: BasicAuthPage, actions: PageActions):
 
     actions.goto(embed_credentials_in_url(f"{URL}/basic_auth", login, password))
 
-    assert basic_auth_page.assert_text_message()
+    actual_text = basic_auth_page.get_text_message()
+
+    assert actual_text == (
+        "Congratulations! You must have the proper credentials."
+    ), (
+        f"Неверный текст сообщения. "
+        f"Ожидалось: 'Congratulations! You must have the proper credentials.', "
+        f"Фактически: '{actual_text}'"
+    )
 
 
 def test_alerts(js_alert_page: JavascriptAlerts, actions: PageActions):
@@ -72,7 +80,7 @@ def test_alerts(js_alert_page: JavascriptAlerts, actions: PageActions):
 
     assert prompt_text == "I am a JS prompt", (
         f"Неожиданный текст prompt. "
-        f"Ожидалось: 'I am a JS Prompt', Фактически: '{prompt_text}'"
+        f"Ожидалось: 'I am a JS prompt', Фактически: '{prompt_text}'"
     )
 
     result = js_alert_page.get_result_text()
@@ -170,22 +178,40 @@ def test_windows(windows_page: WindowsPage, actions: PageActions):
     actions.goto(f"{URL}/windows")
 
     new_tab_1 = windows_page.open_new_tab()
-    assert "/windows/new" in new_tab_1.url
+
+    assert "/windows/new" in new_tab_1.url, (
+        f"Неверный URL новой вкладки. "
+        f"Ожидалось наличие: '/windows/new', "
+        f"Фактически: '{new_tab_1.url}'"
+    )
 
     new_window_page_1 = NewWindowPage(new_tab_1)
     text_1 = new_window_page_1.get_text()
 
-    assert text_1 == "New Window"
+    assert text_1 == "New Window", (
+        f"Неверный текст на первой новой вкладке. "
+        f"Ожидалось: 'New Window', "
+        f"Фактически: '{text_1}'"
+    )
 
     windows_page.page.bring_to_front()
 
     new_tab_2 = windows_page.open_new_tab()
-    assert "/windows/new" in new_tab_2.url
+
+    assert "/windows/new" in new_tab_2.url, (
+        f"Неверный URL второй новой вкладки. "
+        f"Ожидалось наличие: '/windows/new', "
+        f"Фактически: '{new_tab_2.url}'"
+    )
 
     new_window_page_2 = NewWindowPage(new_tab_2)
     text_2 = new_window_page_2.get_text()
 
-    assert text_2 == "New Window"
+    assert text_2 == "New Window", (
+        f"Неверный текст на второй новой вкладке. "
+        f"Ожидалось: 'New Window', "
+        f"Фактически: '{text_2}'"
+    )
 
     windows_page.page.bring_to_front()
 
@@ -195,7 +221,8 @@ def test_windows(windows_page: WindowsPage, actions: PageActions):
     pages = windows_page.page.context.pages
 
     assert len(pages) == 1, (
-        f"Ожидалась 1 вкладка, фактически: {len(pages)}"
+        f"Неверное количество открытых вкладок. "
+        f"Ожидалось: 1, Фактически: {len(pages)}"
     )
 
 
@@ -216,13 +243,30 @@ def test_frames(frame_page: FramePage, actions: PageActions):
     """
     actions.goto(f"{URL}/nested_frames")
 
-    assert frame_page.get_left_text() == "LEFT"
-    assert frame_page.get_right_text() == "RIGHT"
-    assert frame_page.get_bottom_text() == "BOTTOM"
-    assert frame_page.get_middle_text() == "MIDDLE"
+    left_text = frame_page.get_left_text()
+    assert left_text == "LEFT", (
+        f"Неверный текст в левом frame. "
+        f"Ожидалось: 'LEFT', Фактически: '{left_text}'"
+    )
 
+    right_text = frame_page.get_right_text()
+    assert right_text == "RIGHT", (
+        f"Неверный текст в правом frame. "
+        f"Ожидалось: 'RIGHT', Фактически: '{right_text}'"
+    )
 
-# TODO добавить везде фактический и ожидаемый результат в assert
+    bottom_text = frame_page.get_bottom_text()
+    assert bottom_text == "BOTTOM", (
+        f"Неверный текст в нижнем frame. "
+        f"Ожидалось: 'BOTTOM', Фактически: '{bottom_text}'"
+    )
+
+    middle_text = frame_page.get_middle_text()
+    assert middle_text == "MIDDLE", (
+        f"Неверный текст в центральном frame. "
+        f"Ожидалось: 'MIDDLE', Фактически: '{middle_text}'"
+    )
+
 
 def test_dynamic_content(dynamic_page: DynamicContentPage, actions: PageActions):
     """
@@ -236,5 +280,23 @@ def test_dynamic_content(dynamic_page: DynamicContentPage, actions: PageActions)
     srcs = dynamic_page.wait_for_images_state()
 
     assert len(set(srcs)) < len(srcs), (
-        "Не удалось найти два одинаковых изображения"
+        f"Не найдены одинаковые изображения. "
+        f"Полученные src: {srcs}"
+    )
+
+
+def test_scroll(infinite_scroll_page: InfiniteScrollPage, actions: PageActions):
+    """
+    1. Перейти по URL
+    2. Прокручивать страницу вниз до тех пор, пока количество абзацев не станет ≥ 10
+        Количество абзацев на странице ≥ 10
+    """
+
+    actions.goto(f"{URL}/infinite_scroll")
+
+    count = infinite_scroll_page.scroll_until(target=10)
+
+    assert count >= 10, (
+        f"Количество абзацев меньше ожидаемого. "
+        f"Ожидалось: не менее 10, Фактически: {count}"
     )

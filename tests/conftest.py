@@ -6,6 +6,7 @@ from pages.dynamic_content_page import DynamicContentPage
 from pages.frames_page import FramePage
 from pages.horizontal_slider_page import HorizontalSliderPage
 from pages.hovers_page import HoverPage
+from pages.infinite_scroll_page import InfiniteScrollPage
 from pages.javascript_alerts import JavascriptAlerts
 from pages.windows_page import WindowsPage
 from ui.page_actions import PageActions
@@ -61,3 +62,8 @@ def frame_page(page: Page) -> FramePage:
 @pytest.fixture(scope="function")
 def dynamic_page(page: Page) -> DynamicContentPage:
     return DynamicContentPage(page)
+
+
+@pytest.fixture(scope="function")
+def infinite_scroll_page(page: Page) -> InfiniteScrollPage:
+    return InfiniteScrollPage(page)

@@ -1,3 +1,4 @@
+from ui.multi_web_element import MultiWebElement
 from ui.page_actions import PageActions
 from playwright.sync_api import Page
 
@@ -7,12 +8,14 @@ class DynamicContentPage:
         self.page = page
         self.actions = PageActions(page)
 
-        self.images = page.locator("#content img")
+        self.images = MultiWebElement(
+            page=page,
+            locator=page.locator("#content img"),
+            description="Dynamic content images"
+        )
 
     def get_images_src(self):
-        return self.images.evaluate_all(
-            "imgs => imgs.map(img => img.src)"
-        )
+        return self.images.get_all_attributes("src")
 
     def wait_for_images_state(self, attempts: int = 10):
         for _ in range(attempts):

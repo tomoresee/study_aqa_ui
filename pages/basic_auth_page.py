@@ -12,8 +12,5 @@ class BasicAuthPage:
             page=page,
         )
 
-    def assert_text_message(self):
-        return (
-                self.text_message.get_text_content()
-                == "Congratulations! You must have the proper credentials."
-        )
+    def get_text_message(self) -> str:
+        return self.text_message.get_text_content()

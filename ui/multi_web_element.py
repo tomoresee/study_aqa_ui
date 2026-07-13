@@ -64,3 +64,9 @@ class MultiWebElement:
 
     def __str__(self) -> str:
         return f"MultiWebElement[{self.description}]"
+
+    def get_all_attributes(self, attribute: str) -> list[str]:
+        return [
+            element.get_attribute(attribute)
+            for element in self.all()
+        ]
