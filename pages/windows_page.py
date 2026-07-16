@@ -14,14 +14,8 @@ class WindowsPage:
             description="Ссылка открытия новой вкладки"
         )
 
-    def open_new_tab(self) -> Page:
-        with self.page.context.expect_page() as new_page_event:
-            self.link_click_here.click()
-
-        new_page = new_page_event.value
-        new_page.wait_for_load_state()
-
-        return new_page
+    def click_open_new_tab(self) -> None:
+        self.link_click_here.click()
 
 
 class NewWindowPage:

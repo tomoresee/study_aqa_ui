@@ -14,11 +14,16 @@ class DownloadPage(Page):
             description="Download files"
         )
 
+    def get_file_name(self, file_index: int = 0):
+        return self.files.nth(file_index).get_inner_text()
+
+    def download_file(self, file_index: int = 0):
+        with self.page.expect_download() as download_info:
+            self.files.nth(file_index).click()
+        return download_info.value
+
     def get_third_file_name(self):
-        return self.files.nth(2).get_inner_text()
+        return self.get_file_name(2)
 
     def download_third_file(self):
-        with self.page.expect_download() as download_info:
-            self.files.nth(2).click()
-
-        return download_info.value
+        return self.download_file(2)

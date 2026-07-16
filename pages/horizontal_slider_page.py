@@ -17,38 +17,24 @@ class HorizontalSliderPage:
             description="Slider value"
         )
 
-    def set_random_slider_value(self) -> str:
+    def get_slider_range(self) -> tuple[float, float, float]:
         min_value = float(self.slider.get_attribute("min"))
         max_value = float(self.slider.get_attribute("max"))
         step = float(self.slider.get_attribute("step"))
+        return min_value, max_value, step
 
-        values = [
-            round(min_value + step * i, 1)
-            for i in range(
-                1,
-                int((max_value - min_value) / step)
-            )
-        ]
-
-        random_value = random.choice(values)
-
+    def set_value(self, target_value: float) -> None:
         self.slider.focus()
 
-        current_value = float(
-            self.slider.get_attribute("value")
-        )
+        current_value = float(self.slider.get_attribute("value"))
+        step = float(self.slider.get_attribute("step"))
 
-        presses = int(
-            abs(random_value - current_value) / step
-        )
+        presses = int(abs(target_value - current_value) / step)
 
-        key = (
-            "ArrowRight"
-            if random_value > current_value
-            else "ArrowLeft"
-        )
+        key = "ArrowRight" if target_value > current_value else "ArrowLeft"
 
         for _ in range(presses):
             self.slider.press(key)
 
-        return str(random_value)
+    def get_value(self) -> str:
+        return self.slider_value.get_inner_text()

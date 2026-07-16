@@ -11,11 +11,12 @@ from pages.javascript_alerts import JavascriptAlerts
 from pages.upload_image_page import UploadImagePage
 from pages.windows_page import WindowsPage, NewWindowPage
 from ui.page_actions import PageActions
-from utils.data import random_text
+from utils.data import fake
 from utils.url_utils import embed_credentials_in_url
 from pages.basic_auth_page import BasicAuthPage
 
 from utils.config_reader import ConfigReader
+import random
 
 # Это бы я сохранил в .env
 login = "admin"
@@ -49,6 +50,8 @@ def test_basic_auth(basic_auth_page: BasicAuthPage, actions: PageActions):
 
 
 def test_alerts(js_alert_page: JavascriptAlerts, actions: PageActions):
+    random_text = fake.pystr()
+
     actions.goto(f"{URL}/javascript_alerts")
 
     alert_text = js_alert_page.accept_js_alert()
@@ -122,11 +125,18 @@ def test_slider(horizontal_slider_page: HorizontalSliderPage,
         f"{URL}/horizontal_slider"
     )
 
-    expected_value = horizontal_slider_page.set_random_slider_value()
+    min_value, max_value, step = horizontal_slider_page.get_slider_range()
 
-    actual_value = (
-        horizontal_slider_page.slider_value.get_inner_text()
-    )
+    values = [
+        round(min_value + step * i, 1)
+        for i in range(int((max_value - min_value) / step) + 1)
+    ]
+
+    expected_value = random.choice(values)
+
+    horizontal_slider_page.set_value(expected_value)
+
+    actual_value = horizontal_slider_page.get_value()
 
     assert float(actual_value) == float(expected_value), (
         f"Значение слайдера неверное. "
@@ -159,29 +169,11 @@ def test_hovers(hover_page: HoverPage, actions: PageActions):
 
 
 def test_windows(windows_page: WindowsPage, actions: PageActions):
-    """
-    1. Перейти по URL
-    2. Нажать на ссылку Click Here
-    3. Переключиться на новую вкладку /windows/new
-    4. Получить текст, отображаемый на странице
-        Отображается текст: New Window
-
-    5. Вернуться на вкладку из шага 1
-    6. Нажать на ссылку Click Here
-    7. Переключиться на новую вкладку
-    8. Получить текст, отображаемый на странице
-        Отображается текст: New Window
-
-    9. Вернуться на вкладку из шага 1
-    10. Закрыть вкладку, открытую на шаге 3
-    11. Закрыть вкладку, открытую на шаге 7
-    12. Проверить количество открытых вкладок
-        Открыта 1 вкладка
-    """
-
     actions.goto(f"{URL}/windows")
 
-    new_tab_1 = windows_page.open_new_tab()
+    new_tab_1 = actions.open_new_tab(
+        windows_page.click_open_new_tab
+    )
 
     assert "/windows/new" in new_tab_1.url, (
         f"Неверный URL новой вкладки. "
@@ -190,6 +182,7 @@ def test_windows(windows_page: WindowsPage, actions: PageActions):
     )
 
     new_window_page_1 = NewWindowPage(new_tab_1)
+
     text_1 = new_window_page_1.get_text()
 
     assert text_1 == "New Window", (
@@ -198,9 +191,11 @@ def test_windows(windows_page: WindowsPage, actions: PageActions):
         f"Фактически: '{text_1}'"
     )
 
-    windows_page.page.bring_to_front()
+    actions.bring_to_front()
 
-    new_tab_2 = windows_page.open_new_tab()
+    new_tab_2 = actions.open_new_tab(
+        windows_page.click_open_new_tab
+    )
 
     assert "/windows/new" in new_tab_2.url, (
         f"Неверный URL второй новой вкладки. "
@@ -209,6 +204,7 @@ def test_windows(windows_page: WindowsPage, actions: PageActions):
     )
 
     new_window_page_2 = NewWindowPage(new_tab_2)
+
     text_2 = new_window_page_2.get_text()
 
     assert text_2 == "New Window", (
@@ -217,7 +213,7 @@ def test_windows(windows_page: WindowsPage, actions: PageActions):
         f"Фактически: '{text_2}'"
     )
 
-    windows_page.page.bring_to_front()
+    actions.bring_to_front()
 
     new_tab_1.close()
     new_tab_2.close()
@@ -295,12 +291,13 @@ def test_scroll(infinite_scroll_page: InfiniteScrollPage, actions: PageActions):
     2. Прокручивать страницу вниз до тех пор, пока количество абзацев не станет ≥ 10
         Количество абзацев на странице ≥ 10
     """
+    min_paragraphs = 10
 
     actions.goto(f"{URL}/infinite_scroll")
 
-    count = infinite_scroll_page.scroll_until(target=10)
+    count = infinite_scroll_page.scroll_until(target=min_paragraphs)
 
-    assert count >= 10, (
+    assert count >= min_paragraphs, (
         f"Количество абзацев меньше ожидаемого. "
         f"Ожидалось: не менее 10, Фактически: {count}"
     )

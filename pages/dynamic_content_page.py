@@ -25,6 +25,5 @@ class DynamicContentPage:
                 return srcs
 
             self.page.reload()
-            self.page.wait_for_load_state("domcontentloaded")
 
         return srcs

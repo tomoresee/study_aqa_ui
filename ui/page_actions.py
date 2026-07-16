@@ -78,3 +78,14 @@ class PageActions:
             raise RuntimeError("Expected dialog was not shown")
 
         return message
+
+    def open_new_tab(self, action) -> Page:
+        logger.info("PageActions: open new tab")
+
+        with self.page.context.expect_page() as event:
+            action()
+
+        new_page = event.value
+        new_page.wait_for_load_state()
+
+        return new_page
