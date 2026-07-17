@@ -21,9 +21,3 @@ class DownloadPage(Page):
         with self.page.expect_download() as download_info:
             self.files.nth(file_index).click()
         return download_info.value
-
-    def get_third_file_name(self):
-        return self.get_file_name(2)
-
-    def download_third_file(self):
-        return self.download_file(2)

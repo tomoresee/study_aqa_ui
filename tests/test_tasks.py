@@ -343,9 +343,10 @@ def test_download(download_page: DownloadPage, actions: PageActions):
     """
     actions.goto(f"{URL}/download")
 
-    expected_file_name = download_page.get_third_file_name()
+    file_index = 2
 
-    download = download_page.download_third_file()
+    expected_file_name = download_page.get_file_name(file_index)
+    download = download_page.download_file(file_index)
 
     actual_file_name = Path(download.suggested_filename).name
 
