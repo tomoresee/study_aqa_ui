@@ -17,27 +17,24 @@ class InfiniteScrollPage:
     def get_paragraphs_count(self) -> int:
         return self.paragraphs.count()
 
-    def scroll_down(self):
-        old_count = self.get_paragraphs_count()
-        self.page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+    def scroll_to_last_paragraph(self):
+        if self.paragraphs.count() > 0:
+            last_element = self.paragraphs.locator.last
+            last_element.scroll_into_view_if_needed()
 
-        try:
-            self.page.wait_for_function(
-                f"document.querySelectorAll('.jscroll-added').length > {old_count}",
-                timeout=5000
-            )
-            self.get_paragraphs_count()
-        except PlaywrightTimeoutError:
-            self.page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-
-    def scroll_until(self, target: int, max_attempts: int = 15):
+    def scroll_until(self, target: int, max_attempts: int = 20):
         for attempt in range(max_attempts):
             count = self.get_paragraphs_count()
 
             if count >= target:
                 return count
 
-            self.scroll_down()
+            self.scroll_to_last_paragraph()
+
+            try:
+                self.paragraphs.locator.nth(count).wait_for(state="attached", timeout=5000)
+            except PlaywrightTimeoutError:
+                pass
 
         final_count = self.get_paragraphs_count()
         return final_count
